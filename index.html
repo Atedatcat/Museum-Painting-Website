@@ -20,8 +20,12 @@ html {
 body {
     margin: 0;
     min-height: 100vh;
-    background: linear-gradient(to bottom, #3B2B2C, #4D3A36, #211D1D) fixed;
+    background: radial-gradient( rgb(26, 25, 25), #3B2B2C, #2f201d, #211D1D) fixed;
     position: relative;
+}
+
+a {
+    color: white;
 }
 
 h1 {
@@ -42,60 +46,363 @@ h1 {
         grid-template-columns: repeat(3, 250px);
         grid-template-rows: repeat(3, 250px);
         gap: 8px;
+
     }
 
-.tv-container > div {
-        background: #8CC8BD;
-        width: 250px;
-        height: 250px;
-        border: 15px solid black;
-        box-sizing: border-box;
-        
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer; 
+
+#camera-feed {
+    transform: scaleX(-1);
+}
+
+/* Each complete TV */
+.tv-set {
+    position: relative;
+    width: 250px;
+    height: 250px;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+/* The area where the video sits */
+.tv-screen {
+    position: absolute;
+
+    /* STARTING VALUES: adjust to fit your PNG */
+    top: 10%;
+    left: 10%;
+    width: 85%;
+    height: 90%;
+
+    z-index: 1;
+    overflow: hidden;
+    background: black;
+}
+
+/* Videos and live camera */
+.tv-screen video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(0.8) contrast(1.1);
+    transition: filter 0.2s ease;
+}
+
+/* Mirror the live camera */
+#camera-feed {
+    transform: scaleX(-1);
+}
+
+/* Static GIF inside the screen only */
+.static-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+
+    background-image: url("staticscreen.gif");
+    background-size: cover;
+    background-position: center;
+
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+/* Darken the outer TV screens on hover */
+.tv-container > .tv-set:not(.tv5):hover .tv-screen video {
+    filter: brightness(0.08) saturate(0);
+}
+
+/* Show static when hovering over outer TVs */
+.tv-container > .tv-set:not(.tv5):hover .static-overlay {
+    opacity: 1;
+}
+
+/* Center TV prompt */
+.click-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
     
-    }
 
-.screen {
-        background: #97CAF7;
-        width: 230px;
-        height: 60px;
-        margin-top: 165px;
-    }
+    color: white;
+    background: rgba(0, 0, 0, 0.45);
 
-.tv-container > div:hover {
-        background: #5F5A6E; 
-    }
+    font-family: "Turret Road", sans-serif;
+    font-size: 28px;
+    text-align: center;
 
-.tv-container > div:hover .screen {
-        background: #523F33; 
-    }
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+}
+
+.tv5:hover .click-overlay {
+    opacity: 1;
+}
+
+.tv5.camera-active .click-overlay {
+    display: none;
+}
+
+/* TV frame PNG on top of everything */
+.tv-frame {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+
+    pointer-events: none;
+}
+
+/* Title and info icon sit side by side */
+.title-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+/* Remove default heading margins so the title aligns */
+.title-container h1 {
+    margin: 0;
+}
+
+/* Small information icon */
+.info-button {
+    background: none;
+    border: none;
+    padding: 0;
+
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+
+    transition: opacity 0.2s ease;
+}
+
+.info-button:hover {
+    opacity: 0.6;
+}
+
+/* Information paragraph */
+.info-panel {
+    max-width: 500px;
+    margin: 18px auto 0;
+    padding: 0 20px;
+
+    color: white;
+    font-family: "Turret Road", sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    text-align: center;
+}
+
+.info-panel p {
+    margin: 0;
+}
+
   </style>
 </head>
 
 
 <body>
 
-<h1>WIPE CYCLE</h1>
+<div class="title-container">
+    <h1>FOOTAGE</h1>
+
+    <button class="info-button" id="info-button"
+        aria-label="About FOOTAGE"
+        aria-expanded="false">
+        🛈
+    </button>
+</div>
+
+<div class="info-panel" id="info-panel" hidden>
+    <p>
+        "<a href="https://www.moma.org/collection/works/435329">Wipe Cycle</a>" (1969/2017) is an art instillation created by Frank Gillette and Ira Schneide,
+         that consists of a 3x3 grid of nine retro television monitors. The piece exhibits themes of
+         surveillance, mass media, and participation of the viewers. This website, by Prestyn Phomsoupha, pays homage to this
+         artwork, drawing inspiration from it's themes and structure.
+    </p>
+</div>
 
 <div class="tv-wall">
+
     <div class="tv-container">
-        <div class="tv1"><div class="screen"></div></div>
-        <div class="tv2"><div class="screen"></div></div>
-        <div class="tv3"><div class="screen"></div></div>
 
-        <div class="tv4"><div class="screen"></div></div>
-        <div class="tv5"><div class="screen"></div></div>
-        <div class="tv6"><div class="screen"></div></div>
+        <div class="tv1 tv-set">
+        <div class="tv-screen">
+            <video autoplay muted loop playsinline>
+                <source src="clip1.mp4" type="video/mp4">
+            </video>
 
-        <div class="tv7"><div class="screen"></div></div>
-        <div class="tv8"><div class="screen"></div></div>
-        <div class="tv9"><div class="screen"></div></div>
+            <div class="static-overlay"></div>
+        </div>
+
+        <img class="tv-frame" src="tvmonitor.png" alt="">
+    </div>
+
+        <div class="tv2 tv-set">
+        <div class="tv-screen">
+            <video autoplay muted loop playsinline>
+                <source src="clip2.mp4" type="video/mp4">
+            </video>
+
+            <div class="static-overlay"></div>
+        </div>
+
+        <img class="tv-frame" src="tvmonitor.png" alt="">
+    </div>
+
+        <div class="tv3 tv-set">
+        <div class="tv-screen">
+            <video autoplay muted loop playsinline>
+                <source src="clip3.mp4" type="video/mp4">
+            </video>
+
+            <div class="static-overlay"></div>
+        </div>
+
+        <img class="tv-frame" src="tvmonitor.png" alt="">
+    </div>
+
+        <div class="tv4 tv-set">
+        <div class="tv-screen">
+            <video autoplay muted loop playsinline>
+                <source src="clip4.mp4" type="video/mp4">
+            </video>
+
+            <div class="static-overlay"></div>
+        </div>
+
+        <img class="tv-frame" src="tvmonitor.png" alt="">
+    </div>
+
+        <div class="tv5 tv-set">
+            <div class="tv-screen">
+                <video id="camera-feed" autoplay muted loop playsinline>
+                    <source src="clip5.mp4" type="video/mp4">
+                </video>
+
+                <div class="click-overlay">
+                CLICK ME
+                </div>
+            </div>
+
+            <img class="tv-frame" src="tvmonitor.png" alt="">
+        </div>  
+
+        <div class="tv6 tv-set">
+        <div class="tv-screen">
+            <video autoplay muted loop playsinline>
+                <source src="clip6.mp4" type="video/mp4">
+            </video>
+
+            <div class="static-overlay"></div>
+        </div>
+
+        <img class="tv-frame" src="tvmonitor.png" alt="">
+    </div>
+
+        <div class="tv7 tv-set">
+        <div class="tv-screen">
+            <video autoplay muted loop playsinline>
+                <source src="clip7.mp4" type="video/mp4">
+            </video>
+
+            <div class="static-overlay"></div>
+        </div>
+
+        <img class="tv-frame" src="tvmonitor.png" alt="">
+    </div>
+
+        <div class="tv8 tv-set">
+        <div class="tv-screen">
+            <video autoplay muted loop playsinline>
+                <source src="clip8.mp4" type="video/mp4">
+            </video>
+
+            <div class="static-overlay"></div>
+        </div>
+
+        <img class="tv-frame" src="tvmonitor.png" alt="">
+    </div>
+
+        <div class="tv9 tv-set">
+        <div class="tv-screen">
+            <video autoplay muted loop playsinline>
+                <source src="clip1.mp4" type="video/mp4">
+            </video>
+
+            <div class="static-overlay"></div>
+        </div>
+
+        <img class="tv-frame" src="tvmonitor.png" alt="">
+    </div>
+
     </div>
 </div>
-    
-</body>
 
+<script>
+    const cameraTV = document.querySelector(".tv5");
+    const cameraFeed = document.getElementById("camera-feed");
+
+    let cameraStream = null;
+
+    cameraTV.addEventListener("click", async () => {
+        // Don't request permission again if the camera is running
+        if (cameraStream) {
+            return;
+        }
+
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: "user"
+                },
+                audio: false
+            });
+
+            // Save the camera stream
+            cameraStream = stream;
+
+            // Replace the prerecorded video with the live camera
+            cameraFeed.srcObject = cameraStream;
+
+            // Remove the looping behavior for the live feed
+            cameraFeed.loop = false;
+
+            await cameraFeed.play();
+            cameraTV.classList.add("camera-active");
+
+        } catch (error) {
+            console.error("Camera access failed:", error);
+
+            // Keep the original video playing if permission is denied
+            cameraFeed.srcObject = null;
+            cameraStream = null;
+        }
+    });
+
+    const infoButton = document.getElementById("info-button");
+    const infoPanel = document.getElementById("info-panel");
+
+    infoButton.addEventListener("click", () => {
+        const isOpen = !infoPanel.hidden;
+
+    infoPanel.hidden = isOpen;
+    infoButton.setAttribute("aria-expanded", String(!isOpen));
+    });
+
+</script>
+
+</body>
 </html>
